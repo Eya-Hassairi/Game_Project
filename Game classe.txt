@@ -1,0 +1,35 @@
+// Game.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+#include <SFML/Graphics.hpp>
+using namespace sf;
+int main()
+{
+	RenderWindow window(VideoMode(600, 600), "SFML-Tuto");
+	while (window.isOpen())
+	{   
+		Event event;
+		while (window.pollEvent(event))
+		{
+			switch (event.type)
+			{
+				//Evènement déclenché lorsque l'utilisateur souhaite fermer la fenêtre
+			case Event::Closed:
+				window.close();
+				break;
+			case Event::KeyPressed:
+				std::cout << "key has been pressed" << std::endl;
+				switch (event.key.code)
+				{
+				case Keyboard::A:
+					std::cout << "A" << std::endl;
+					break;
+				}
+			}
+		}
+		window.clear(Color::White);
+		window.display();
+	}
+	return 0;
+}

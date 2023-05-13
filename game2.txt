@@ -1,0 +1,219 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <random>
+
+int main()
+{
+    // Créer une fenêtre de jeu
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Simulation de vol en avion");
+
+    // Charger les textures
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromFile("background.png");
+
+    sf::Texture planeTexture;
+    planeTexture.loadFromFile("plane.png");
+
+    sf::Texture bombTexture;
+    bombTexture.loadFromFile("bomb.png");
+
+    // Créer les sprites pour le fond et l'avion
+    sf::Sprite backgroundSprite(backgroundTexture);
+    sf::Sprite planeSprite(planeTexture);
+
+    // Positionner les sprites
+    backgroundSprite.setPosition(0, 0);
+    planeSprite.setPosition(400, 300);
+
+
+    // Charger la musique
+    sf::Music music;
+    music.openFromFile("game.wav");
+    music.setLoop(true);
+    music.play();
+
+    sf::Music crashMusic;
+    crashMusic.openFromFile("game over.wav");
+    bool hasCrashed = false;
+
+    // initialiser window2 à null pour detecter sa fermeture dans la boucle principale
+    sf::RenderWindow window2;
+
+    // initialiser le générateur aléatoire
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> disX(50, 750);
+    std::uniform_int_distribution<> disY(50, 550);
+
+    // stocker les bombes générées
+    std::vector<sf::Sprite> bombs;
+
+    // Définir la vitesse de l'avion
+    float planeSpeed = 0.00f;
+
+    // Position initiale de la cartouche
+    sf::Vector2f bulletPos(-10.f, -10.f);
+
+    // Boucle principale du jeu
+    while ((window.isOpen()) && (!hasCrashed)) //La 2e condition et pour ne pas répéter la création de la fenêtre de Game over à chaque itération de la boucle principale 
+    {
+        // Gérer les événements de la fenêtre
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+            }
+
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::Space)
+                {
+                    // Tirer une cartouche
+                    if (bulletPos.x < 0.f) {
+                        bulletPos.x = planeSprite.getPosition().x + planeTexture.getSize().x;
+                        bulletPos.y = planeSprite.getPosition().y + planeTexture.getSize().y / 2;
+                    }
+                }
+            }
+        }
+
+        // Générer une nouvelle bombe si la précédente a été détruite
+        if (bombs.empty()) {
+            sf::Sprite bombSprite(bombTexture);
+            bombSprite.setPosition(disX(gen), disY(gen));
+            bombs.push_back(bombSprite);
+        }
+
+        // Déplacer la cartouche
+        if (bulletPos.x >= 0.f) {
+            bulletPos.x += 5.f;
+            if (bulletPos.x > window.getSize().x) {
+                bulletPos.x = -10.f;
+                bulletPos.y = -10.f;
+            }
+        }
+
+        // Déplacer l'avion en fonction des contrôles du joueur
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            planeSpeed -= 0.01f;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            planeSpeed += 0.01f;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        {
+            planeSprite.rotate(-1.f);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        {
+            planeSprite.rotate(1.f);
+        }
+        // Déplacer l'avion en fonction de sa vitesse
+        planeSprite.move(cos(planeSprite.getRotation() * 3.14 / 180) * planeSpeed, sin(planeSprite.getRotation() * 3.14 / 180) * planeSpeed);
+
+
+        // Vérifier si une bombe a touché l'avion
+        for (auto& bomb : bombs)
+        {
+            if (bomb.getGlobalBounds().intersects(planeSprite.getGlobalBounds()))
+            {
+                planeSpeed = 0.00f; //Arrêter l'avion 
+                hasCrashed = true;
+                music.stop();
+
+            }
+            if (hasCrashed)
+            {     //Créer la fenêtre de Game over 
+                window2.create(sf::VideoMode(600, 300), "Game Over");
+
+                //Utiliser le fond valuoldcaps.ttf
+                sf::Font font;
+                font.loadFromFile("valuoldcaps.ttf");
+                sf::Text text("GAME OVER", font, 50);
+
+                //Centrer le texte à la fenêtre Game over 
+                sf::FloatRect textRect = text.getLocalBounds();
+                text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                text.setPosition(window2.getSize().x / 2.0f, window2.getSize().y / 2.0f);
+
+
+                window2.draw(text);
+                window2.display();
+                crashMusic.play();
+                while (crashMusic.getStatus() == sf::SoundSource::Playing)
+                {   //Profitez cette boucle pour attendre la fin de la musique de crash et à la fois pour détecter la fermeture de la fenêtre Game over
+                    sf::Event event;
+                    while (window2.pollEvent(event))
+                    {
+                        if (event.type == sf::Event::Closed)
+                        {
+                            window2.close();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Vérifier si la cartouche a touché une bombe
+        for (auto it = bombs.begin(); it != bombs.end(); )
+        {
+            if (it->getGlobalBounds().contains(bulletPos))
+            {
+                it = bombs.erase(it);
+                bulletPos.x = -10.f;
+                bulletPos.y = -10.f;
+            }
+            else {
+                ++it;
+            }
+        }
+
+        // Effacer l'écran
+        window.clear();
+
+        // Dessiner le fond et l'avion
+        window.draw(backgroundSprite);
+        window.draw(planeSprite);
+
+        // Dessiner les bombes
+        for (auto& bomb : bombs)
+        {
+            window.draw(bomb);
+        }
+
+        // Dessiner la cartouche
+        sf::RectangleShape bullet(sf::Vector2f(10.f, 5.f));
+        bullet.setFillColor(sf::Color::Black);
+        bullet.setPosition(bulletPos);
+        window.draw(bullet);
+
+        // Afficher l'écran
+        window.display();
+
+        // Afficher la fenêtre Game Over
+        if (hasCrashed && window2.isOpen()) {
+            sf::Event event;
+            while (window2.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    window2.close();
+                }
+            }
+            window2.clear(sf::Color::White);
+            sf::Font font;
+            font.loadFromFile("arial.ttf");
+            sf::Text text("Game over", font, 50);
+            text.setPosition(100, 75);
+            text.setFillColor(sf::Color::Black);
+            window2.draw(text);
+            window2.display();
+        }
+    }
+
+    return 0;
+}

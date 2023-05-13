@@ -1,0 +1,35 @@
+﻿  Game.cpp
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(130,55): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(130,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(143,65): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(143,55): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(159,69): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(159,59): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(200,128): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(200,70): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(382,121): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(382,100): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(389,118): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\Game.cpp(389,97): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Generating code
+  1 of 193 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Game.vcxproj -> C:\Users\ois\OneDrive\Bureau\2éme S2\tp C++\Game\x64\Release\Game.exe

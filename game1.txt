@@ -1,0 +1,144 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+
+int main()
+{
+    // Créer une fenêtre de jeu
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Simulation de vol en avion");
+
+    // Charger les textures
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromFile("background.png");
+
+    sf::Texture planeTexture;
+    planeTexture.loadFromFile("plane.png");
+
+    sf::Texture cloudTexture;
+    cloudTexture.loadFromFile("cloud.png");
+
+    sf::Texture mountainTexture;
+    mountainTexture.loadFromFile("mountain.png");
+
+    // Créer les sprites pour le fond, l'avion, les nuages et les montagnes
+    sf::Sprite backgroundSprite(backgroundTexture);
+    sf::Sprite planeSprite(planeTexture);
+    sf::Sprite cloudSprite(cloudTexture);
+    sf::Sprite cloudSprite2(cloudTexture);
+    sf::Sprite mountainSprite(mountainTexture);
+
+    // Positionner les sprites
+    backgroundSprite.setPosition(0, 0);
+    planeSprite.setPosition(400, 300);
+    cloudSprite.setPosition(250, 150);
+    cloudSprite2.setPosition(250, 450);
+    mountainSprite.setPosition(500, 300);
+
+    // Définir la vitesse de l'avion
+    float planeSpeed = 0.00f;
+
+    // Charger la musique
+    sf::Music music;
+    music.openFromFile("game.wav");
+    music.setLoop(true);
+    music.play();
+
+
+    sf::Music crashMusic;
+    crashMusic.openFromFile("game over.wav");
+    bool hasCrashed = false;
+
+
+    // initialiser window2 à null pour detecter sa fermeture dans la boucle principale
+    sf::RenderWindow window2;
+
+    // Boucle principale du jeu
+    while ((window.isOpen()) && (!hasCrashed )) //La 2e condition et pour ne pas répéter la création de la fenêtre de Game over à chaque itération de la boucle principale 
+    { 
+        // Gérer les événements de la fenêtre
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+            }
+        }
+
+        // Déplacer l'avion en fonction des contrôles du joueur
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            planeSpeed -= 0.01f;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            planeSpeed += 0.01f;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        {
+            planeSprite.rotate(-1.00f);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        {
+            planeSprite.rotate(1.00f);
+        }
+
+        // Déplacer l'avion en fonction de sa vitesse
+        planeSprite.move(cos(planeSprite.getRotation() * 3.14 / 180) * planeSpeed, sin(planeSprite.getRotation() * 3.14 / 180) * planeSpeed);
+
+        if (planeSprite.getGlobalBounds().intersects(mountainSprite.getGlobalBounds()))  //Si l'avion frappe la montagne 
+        {
+            planeSpeed = 0.00f; //Arrêter l'avion 
+            music.stop();       // Arrêter la musique actuelle
+            hasCrashed = true;
+        }
+        if (hasCrashed)
+        {     //Créer la fenêtre de Game over 
+            window2.create(sf::VideoMode(600, 300), "Game Over");
+
+            //Utiliser le fond valuoldcaps.ttf
+            sf::Font font;
+            font.loadFromFile("valuoldcaps.ttf");
+            sf::Text text("GAME OVER", font, 50);
+
+            //Centrer le texte à la fenêtre Game over 
+            sf::FloatRect textRect = text.getLocalBounds();
+            text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+            text.setPosition(window2.getSize().x / 2.0f, window2.getSize().y / 2.0f);
+
+
+            window2.draw(text);
+            window2.display();
+            crashMusic.play();
+            while (crashMusic.getStatus() == sf::SoundSource::Playing)
+            {   //Profitez cette boucle pour attendre la fin de la musique de crash et à la fois pour détecter la fermeture de la fenêtre Game over
+                sf::Event event;
+                while (window2.pollEvent(event))
+                { 
+                    if (event.type == sf::Event::Closed)
+                    {
+                        window2.close();
+                    }
+            }
+
+            
+        }
+
+          
+            }
+
+        // Afficher les sprites
+        window.clear();
+        window.draw(backgroundSprite);
+        window.draw(cloudSprite);
+        window.draw(cloudSprite2);
+        window.draw(mountainSprite);
+        window.draw(planeSprite);
+        window.display();
+
+      
+    }
+
+        crashMusic.stop();
+    
+    return 0;
+}
